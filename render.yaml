@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: kahin
+    env: node
+    buildCommand: npm install && npm run build:web
+    startCommand: npm start
+    envVars:
+      - key: TMDB_API_KEY
+        sync: false
+      - key: VITE_API_BASE_URL
+        value: ""

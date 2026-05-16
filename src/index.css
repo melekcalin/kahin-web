@@ -1,0 +1,165 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=IM+Fell+English:ital@0;1&family=Inter:wght@100;200;300;400&family=JetBrains+Mono:wght@100;200;300&family=Manrope:wght@200;300;400&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-serif: "Cormorant Garamond", "IM Fell English", serif;
+  --font-sans: "Inter", sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+  --font-manrope: "Manrope", sans-serif;
+  
+  --color-oracle: #FF6EB4;
+  --color-amber: #C8A97A;
+}
+
+:root {
+  background-color: #000000;
+  color: white;
+  overflow: hidden;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #000000;
+}
+
+#root {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Film Grain Overlay */
+.film-grain {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.04;
+  background-image: url("https://grainy-gradients.vercel.app/noise.svg");
+  background-repeat: repeat;
+}
+
+/* Custom Typewriter Cursor */
+.oracle-cursor {
+  display: inline-block;
+  width: 2px;
+  height: 1.1em;
+  background-color: #FF6EB4;
+  margin-left: 2px;
+  vertical-align: middle;
+  animation: blink 0.8s step-end infinite;
+  box-shadow: 0 0 8px #FF6EB4;
+}
+
+@keyframes blink {
+  from, to { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+/* Hide Scrollbars */
+::-webkit-scrollbar {
+  display: none;
+}
+
+.safe-area-top {
+  padding-top: env(safe-area-inset-top, 44px);
+}
+
+.safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 34px);
+}
+
+.app-navigation {
+  padding-top: max(72px, calc(env(safe-area-inset-top, 44px) + 28px));
+  padding-bottom: 8px;
+}
+
+.app-progress {
+  top: max(128px, calc(env(safe-area-inset-top, 44px) + 88px));
+}
+
+.intro-audio-control {
+  top: max(72px, calc(env(safe-area-inset-top, 44px) + 28px));
+  right: 22px;
+}
+
+.nav-icon-button {
+  width: 44px;
+  height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.28);
+  backdrop-filter: blur(14px);
+}
+
+.signal-card-title {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.intro-signal-lines {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.intro-signal-lines::before,
+.intro-signal-lines::after {
+  content: "";
+  position: absolute;
+  left: -30%;
+  width: 160%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 110, 180, 0.12), rgba(255, 255, 255, 0.18), rgba(255, 110, 180, 0.1), transparent);
+  box-shadow: 0 0 18px rgba(255, 110, 180, 0.22);
+  animation: intro-signal-drift 9s ease-in-out infinite;
+}
+
+.intro-signal-lines::before {
+  top: 32%;
+  transform: rotate(-9deg);
+}
+
+.intro-signal-lines::after {
+  top: 61%;
+  transform: rotate(7deg);
+  animation-delay: -4s;
+}
+
+.intro-signal-line {
+  position: absolute;
+  left: -25%;
+  width: 150%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 110, 180, 0.08), rgba(255, 255, 255, 0.12), transparent);
+  box-shadow: 0 0 14px rgba(255, 110, 180, 0.16);
+  animation: intro-signal-drift 11s ease-in-out infinite;
+}
+
+@keyframes intro-signal-drift {
+  0%, 100% {
+    opacity: 0.22;
+    translate: -18px 0;
+  }
+  50% {
+    opacity: 0.75;
+    translate: 24px 0;
+  }
+}
