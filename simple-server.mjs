@@ -64,9 +64,10 @@ async function handleDiscover(reqUrl, res) {
     url.searchParams.append("language", "tr-TR");
     url.searchParams.append("sort_by", input.searchParams.get("sort_by") || "popularity.desc");
     url.searchParams.append("include_adult", "false");
+    url.searchParams.append("include_video", "false");
     url.searchParams.append("page", "1");
 
-    for (const key of ["with_genres", "without_genres"]) {
+    for (const key of ["with_genres", "without_genres", "vote_count.gte", "vote_average.gte"]) {
       const value = input.searchParams.get(key);
       if (value) url.searchParams.append(key, value);
     }

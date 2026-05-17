@@ -1,7 +1,7 @@
 import { MoodData, Film, Valence, Arousal, World } from '../types';
 
 const GENRE_MAP: Record<string, string> = {
-  'positive-slow-escape': '16,10751,14',
+  'positive-slow-escape': '12,14,10749',
   'positive-slow-mirror': '99,36',
   'positive-fast-escape': '12,878',
   'positive-fast-mirror': '35,10402',
@@ -23,15 +23,31 @@ const VERDICT_MAP: Record<string, string> = {
 };
 
 const API_BASE_URL = (import.meta as any).env?.VITE_API_BASE_URL || '';
+const ANIMATION_GENRE_ID = 16;
+
+function buildWithoutGenres(mood: MoodData) {
+  const genres = [ANIMATION_GENRE_ID];
+
+  if (mood.companion === 'together') {
+    genres.push(27);
+  }
+
+  return genres.join(',');
+}
 
 export async function fetchRecommendations(mood: MoodData): Promise<{ films: Film[], error?: string }> {
   const key = `${mood.valence}-${mood.arousal}-${mood.world}`;
   const genres = GENRE_MAP[key] || '18'; // Default to Drama
   const verdict = VERDICT_MAP[key] || 'Ruhun için doğru seçim.';
-  const withoutGenres = mood.companion === 'together' ? '&without_genres=27' : '';
+  const params = new URLSearchParams({
+    with_genres: genres,
+    without_genres: buildWithoutGenres(mood),
+    'vote_count.gte': '80',
+    'vote_average.gte': '5.8',
+  });
 
   try {
-    const response = await fetch(`${API_BASE_URL}/api/movies/discover?with_genres=${genres}${withoutGenres}`);
+    const response = await fetch(`${API_BASE_URL}/api/movies/discover?${params.toString()}`);
     const data = await response.json();
     
     if (data.error) {
@@ -43,8 +59,14 @@ export async function fetchRecommendations(mood: MoodData): Promise<{ films: Fil
       return { films: [] };
     }
 
+    const cleanResults = data.results
+      .filter((movie: any) => !movie.genre_ids?.includes(ANIMATION_GENRE_ID))
+      .filter((movie: any) => movie.poster_path && movie.release_date)
+      .filter((movie: any) => (movie.vote_count || 0) >= 25)
+      .slice(0, 9);
+
     // Transform TMDB results to our Film type
-    const films: Film[] = await Promise.all(data.results.slice(0, 9).map(async (m: any) => {
+    const films: Film[] = await Promise.all(cleanResults.map(async (m: any) => {
       let director = 'Bilinmiyor';
       let cast: string[] = [];
       try {

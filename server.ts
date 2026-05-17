@@ -41,6 +41,7 @@ async function startServer() {
       url.searchParams.append("language", "tr-TR");
       url.searchParams.append("sort_by", (sort_by as string) || "popularity.desc");
       url.searchParams.append("include_adult", "false");
+      url.searchParams.append("include_video", "false");
       url.searchParams.append("page", "1");
       
       if (with_genres) {
@@ -48,6 +49,12 @@ async function startServer() {
       }
       if (without_genres) {
         url.searchParams.append("without_genres", without_genres as string);
+      }
+      if (req.query["vote_count.gte"]) {
+        url.searchParams.append("vote_count.gte", req.query["vote_count.gte"] as string);
+      }
+      if (req.query["vote_average.gte"]) {
+        url.searchParams.append("vote_average.gte", req.query["vote_average.gte"] as string);
       }
 
       const response = await fetch(url.toString());

@@ -205,6 +205,7 @@ const Navigation = ({ onBack, onHome, isMuted, onToggleMute, showBack = true }: 
               onBack();
             }}
             className="nav-icon-button text-white/85"
+            aria-label="Geri dön"
           >
             <ChevronLeft size={24} strokeWidth={1.7} />
           </motion.button>
@@ -218,6 +219,7 @@ const Navigation = ({ onBack, onHome, isMuted, onToggleMute, showBack = true }: 
           whileHover={{ opacity: 1 }}
           onClick={onToggleMute}
           className="nav-icon-button text-white"
+          aria-label={isMuted ? "Sesi aç" : "Sesi kapat"}
         >
           {isMuted ? (
             <VolumeX size={22} strokeWidth={1.5} className="text-white/50" />
@@ -235,6 +237,7 @@ const Navigation = ({ onBack, onHome, isMuted, onToggleMute, showBack = true }: 
             onHome();
           }}
           className="nav-icon-button text-white/90"
+          aria-label="Ana ekrana dön"
         >
           <Home size={22} strokeWidth={1.8} />
         </motion.button>
@@ -245,7 +248,7 @@ const Navigation = ({ onBack, onHome, isMuted, onToggleMute, showBack = true }: 
 
 const ProgressIndicator = ({ currentStep }: { currentStep: number }) => {
   return (
-    <div className="fixed app-progress left-1/2 -translate-x-1/2 flex gap-3 z-[110]">
+    <div className="fixed app-progress left-1/2 -translate-x-1/2 flex gap-3 z-[110]" role="status" aria-label={`Adım ${currentStep || 1} / 5`}>
       {[1, 2, 3, 4, 5].map((step) => (
         <div
           key={step}
@@ -413,9 +416,10 @@ const ColorScreen = ({ onSelect }: { onSelect: (valence: Valence) => void }) => 
             whileHover={{ scale: 1.05, boxShadow: `0 0 25px ${c.hex}66` }}
             whileTap={{ scale: 1.02 }}
             transition={{ duration: 0.6, ease: "easeInOut" }}
-            onClick={() => selected === null && handleSelect(i)}
-            className="relative h-20 rounded-2xl overflow-hidden group"
-            style={{ 
+                onClick={() => selected === null && handleSelect(i)}
+                className="relative h-20 rounded-2xl overflow-hidden group"
+                aria-label={`${c.label} rengini seç`}
+                style={{ 
               backgroundColor: c.hex,
               border: selected === i ? '1px solid #FF6EB4' : '1px solid rgba(255,255,255,0.05)',
               boxShadow: selected === i ? `0 0 30px ${c.hex}88` : 'none'
@@ -439,6 +443,9 @@ const ColorScreen = ({ onSelect }: { onSelect: (valence: Valence) => void }) => 
                 <div className="w-1.5 h-1.5 bg-oracle rounded-full shadow-[0_0_15px_#FF6EB4]" />
               </motion.div>
             )}
+            <span className="absolute bottom-2 left-1/2 -translate-x-1/2 rounded-full bg-black/35 px-3 py-1 text-[9px] uppercase tracking-widest font-manrope font-light text-white/80 backdrop-blur-sm">
+              {c.label}
+            </span>
           </motion.button>
         ))}
       </div>
@@ -1008,6 +1015,7 @@ const VerdictScreen = ({ mood, onReset, onShowDetails }: { mood: MoodData, onRes
   const [loading, setLoading] = useState(true);
   const [isFavorite, setIsFavorite] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [retryCount, setRetryCount] = useState(0);
 
   useEffect(() => {
     async function getFilms() {
@@ -1026,7 +1034,7 @@ const VerdictScreen = ({ mood, onReset, onShowDetails }: { mood: MoodData, onRes
       setLoading(false);
     }
     getFilms();
-  }, [mood]);
+  }, [mood, retryCount]);
 
   const signalFilms = SIGNAL_LABELS.map((_, index) => films[(currentFilmIndex + index) % films.length]).filter(Boolean);
   const currentFilm = signalFilms[selectedSignalIndex] || films[currentFilmIndex % films.length];
@@ -1124,7 +1132,18 @@ const VerdictScreen = ({ mood, onReset, onShowDetails }: { mood: MoodData, onRes
     return (
       <div className="flex flex-col items-center justify-center h-full w-full bg-transparent px-10 text-center">
         <OracleText text={error || "Bugün hiçbir sinyal alamıyorum. Belki de sessizlik gerekiyordur."} />
-        <button onClick={onReset} className="mt-12 text-oracle uppercase tracking-widest text-xs">Baştan Başla</button>
+        <div className="mt-12 flex flex-col items-center gap-5">
+          <button
+            onClick={() => {
+              audioService.playEffect('ui_click', 0.35);
+              setRetryCount(count => count + 1);
+            }}
+            className="rounded-full border border-oracle/25 bg-oracle/5 px-6 py-3 text-oracle uppercase tracking-widest text-xs"
+          >
+            Sinyali tekrar ara
+          </button>
+          <button onClick={onReset} className="text-white/45 uppercase tracking-widest text-[10px]">Baştan Başla</button>
+        </div>
       </div>
     );
   }
